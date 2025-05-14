@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:rafay@db:5432/team_polls
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=your_jwt_secret
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    environment:
+      - VITE_BACKEND_URL=http://localhost:3000
+      - VITE_WS_URL=ws://localhost:3000
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rafay
+      POSTGRES_DB: team_polls
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
